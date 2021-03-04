@@ -1,0 +1,27 @@
+server:
+  port: 8084
+spring:
+  cloud:
+    gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]': # 匹配所有请求
+#            allowedOrigins: "*" #跨域处理 允许所有的域
+            allow-credentials: true
+            allowed-origins: "*"
+            allowed-headers: "*"
+            allowed-methods: # 支持的方法
+              - GET
+              - POST
+              - PUT
+              - DELETE
+  main:
+    allow-bean-definition-overriding: true
+  redis:
+    host: 127.0.0.1
+    port: 6379
+logging:
+  level:
+    org:
+      springframework: debug
+#  config: classpath:log4j2-spring.xml

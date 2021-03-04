@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cloud.user.mapper.SysResourceMapper">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.cloud.user.model.SysResource">
+		<id column="id" property="id" />
+		<result column="resource_code" property="resourceCode" />
+		<result column="system_code" property="systemCode" />
+		<result column="name" property="name" />
+		<result column="type" property="type" />
+		<result column="url" property="url" />
+		<result column="icon" property="icon" />
+		<result column="icon_name" property="iconName" />
+		<result column="parent_id" property="parentId" />
+		<result column="parent_resource_code" property="parentResourceCode" />
+		<result column="permission" property="permission" />
+		<result column="available" property="available" />
+		<result column="seq" property="seq" />
+		<result column="create_by" property="createBy" />
+		<result column="create_time" property="createTime" />
+		<result column="update_by" property="updateBy" />
+		<result column="update_time" property="updateTime" />
+	</resultMap>
+
+	<select id="findResourceBySystemCodeAndRoleCode" resultType="com.cloud.user.model.SysResource">
+		select sr.role_name,
+		s.name,
+		s.resource_code,
+		s.parent_resource_code,
+		s.permission,
+		(select srr.resource_code
+		from sys_role_resources srr
+		where srr.resource_code = s.resource_code
+		and srr.role_code = sr.role_code) selected_resource_code
+		from sys_role sr
+		left join sys_resource s on s.system_code = sr.system_code
+		<where>
+			s.resource_code is not null
+		    and s.available = 1
+			<if test="systemCode!='' and systemCode!=null">
+				and sr.system_code = #{systemCode}
+			</if>
+			<if test="roleCode!='' and roleCode!=null">
+				and sr.role_code = #{roleCode}
+			</if>
+		</where>
+	</select>
+
+	<select id="findSysResourceBySystemCodeAndUserCode" resultType="com.cloud.user.model.SysResource">
+		select distinct sre.*
+		from sys_user su,
+		sys_user_roles sur,
+		sys_role sr,
+		sys_role_resources srr,
+		sys_resource sre
+		where su.user_code = sur.user_code
+		and sur.role_code = sr.role_code
+		and sur.role_code = srr.role_code
+		and sr.`status` = 1
+		and su.locked = 0
+		and sre.available = 1
+		and sre.resource_code = srr.resource_code
+		<if test="systemCode!='' and systemCode!=null">
+			and sr.system_code = #{systemCode}
+		</if>
+		<if test="userCode!='' and userCode!=null">
+			and su.user_code =#{userCode}
+		</if>
+		order by parent_resource_code, seq
+	</select>
+
+
+</mapper>

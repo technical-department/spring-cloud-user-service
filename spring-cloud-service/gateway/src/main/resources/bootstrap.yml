@@ -1,0 +1,35 @@
+nacos:
+  namespace: 142e4905-a36a-4d9f-b18b-ed46c9d9a363
+  server-addr: 127.0.0.1:8848
+spring:
+  application:
+    name: gateway
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${nacos.server-addr}
+        namespace: ${nacos.namespace}
+      config:
+        # 配置中心地址
+        server-addr: ${nacos.server-addr}
+        # 配置文件格式
+        file-extension: yml
+        namespace: ${nacos.namespace}
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      default-filters:
+      - name: Hystrix
+        args:
+          name : default
+          fallbackUri: 'forward:/defaultFallback'
+
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          strategy: SEMAPHORE
+          thread:
+            timeoutInMilliseconds: 2000

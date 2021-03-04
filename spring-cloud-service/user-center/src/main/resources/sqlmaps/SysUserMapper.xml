@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cloud.user.mapper.SysUserMapper">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.cloud.user.model.SysUser">
+		<id column="id" property="id" />
+		<result column="system_code" property="systemCode" />
+		<result column="user_code" property="userCode" />
+		<result column="user_account" property="userAccount" />
+		<result column="user_pwd" property="userPwd" />
+		<result column="user_name" property="userName" />
+		<result column="user_sex" property="userSex" />
+		<result column="user_mobile" property="userMobile" />
+		<result column="user_email" property="userEmail" />
+		<result column="locked" property="locked" />
+		<result column="user_status" property="userStatus" />
+		<result column="last_login_date" property="lastLoginDate" />
+		<result column="create_from" property="createFrom" />
+		<result column="user_mark" property="userMark" />
+		<result column="create_by" property="createBy" />
+		<result column="create_time" property="createTime" />
+		<result column="update_by" property="updateBy" />
+		<result column="update_time" property="updateTime" />
+
+		<collection property="sysDepartments" ofType="com.cloud.user.model.SysDepartment">
+			<id column="id" property="id" />
+			<result column="depart_code" property="departCode" />
+			<result column="depart_name" property="departName" />
+		</collection>
+		<collection property="sysDepartmentPositions" ofType="com.cloud.user.model.SysDepartmentPosition">
+			<id column="id" property="id" />
+			<result column="position_code" property="positionCode" />
+			<result column="position_name" property="positionName" />
+		</collection>
+	</resultMap>
+
+
+	<select id="findOneByUserAccount"
+		parameterType="java.lang.String" resultMap="BaseResultMap">
+		select su.* from sys_user
+		su where su.system_code in (select system_code from sys_base_info sbi
+		where
+		sbi.system_type=#{systemType}) and su.user_account=#{userAccount} 
+		and su.locked=0;
+	</select>
+	<select id="findOneByUserAccountInsSystemCode"
+		parameterType="java.lang.String" resultMap="BaseResultMap">
+		select su.* from sys_user
+		su where su.system_code in (select system_code from sys_base_info sbi
+		where
+		sbi.system_type=#{systemType}) and su.user_account=#{userAccount} and su.system_code=#{systemCode}
+		and su.locked=0;
+	</select>
+	<select id="findOneByIdnoInsSystemCode"
+		parameterType="java.lang.String" resultMap="BaseResultMap">
+		select su.* from sys_user
+		su where su.system_code in (select system_code from sys_base_info sbi
+		where
+		sbi.system_type=#{systemType}) and su.idno=#{idno} and su.system_code=#{systemCode}
+		and su.locked=0;
+	</select>
+
+	<select id="findOneByUserMobile"
+		parameterType="java.lang.String" resultMap="BaseResultMap">
+		select su.* from sys_user
+		su where su.system_code in (select system_code from sys_base_info sbi
+		where
+		sbi.system_type=#{systemType}) and su.user_mobile=#{userMobile}
+		and su.locked=0;
+	</select>
+
+	<select id="findOneByUserCodeAdmin"
+		parameterType="java.lang.String" resultMap="BaseResultMap">
+		select su.* from sys_user su left join sys_employee se on su.user_code=se.user_code  where su.system_code in (select system_code from sys_base_info sbi
+		where sbi.system_type=#{systemType}) and su.user_code=#{userCode} and se.is_work=1
+		and su.locked=0;
+	</select>
+	<select id="findUserCodesByAuthCode"
+		parameterType="java.lang.String" resultMap="BaseResultMap">
+		SELECT resource.permission FROM sys_user su, sys_user_roles sur ,sys_role_resources rr,sys_resource resource 
+		WHERE su.id = sur.user_id AND sur.role_id=rr.role_id AND rr.id=resource.id AND resource.available=1
+		and resource.permission=#{authCode}
+	</select>
+
+	<select id="findOneByUserMobileAdmin"
+		parameterType="java.lang.String" resultMap="BaseResultMap">
+		select su.* from sys_user su left join sys_employee se on su.user_code=se.user_code  where su.system_code in (select system_code from sys_base_info sbi
+		where sbi.system_type=#{systemType}) and su.user_mobile=#{userMobile} and se.is_work=1
+		
+	</select>
+	
+	<select id="findValidByIdNo"
+		parameterType="java.lang.String" resultMap="BaseResultMap">
+		select su.* from sys_user su left join sys_employee e
+		on su.user_code=e.user_code  where su.system_code in 
+		(select system_code from sys_base_info sbi
+		where sbi.system_type=#{systemType}) and su.idno=#{idNo}
+		and (e.user_code is null or e.is_work='1')
+	</select>
+
+	<select id="selectSendSMS" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		SELECT a.* FROM sys_user a LEFT JOIN sys_employee b ON
+		a.user_code=b.user_code
+		LEFT JOIN sys_employee_position c ON
+		c.user_code=b.user_code
+		LEFT JOIN sys_department_position d ON
+		c.position_id= d.id
+		WHERE
+		a.user_code like 'L%' and locked=0;
+		 
+	</select>
+
+	<resultMap id="selectAdminUserPageMap"
+		type="com.cloud.user.model.SysUser">
+		<id column="id" property="id" />
+		<result column="system_code" property="systemCode" />
+		<result column="user_code" property="userCode" />
+		<result column="user_account" property="userAccount" />
+		<result column="user_name" property="userName" />
+		<result column="user_sex" property="userSex" />
+		<result column="user_mobile" property="userMobile" />
+		<result column="user_email" property="userEmail" />
+		<result column="locked" property="locked" />
+		<result column="user_status" property="userStatus" />
+		<result column="last_login_date" property="lastLoginDate" />
+		<result column="create_from" property="createFrom" />
+		<result column="user_mark" property="userMark" />
+		<result column="create_by" property="createBy" />
+		<result column="create_time" property="createTime" />
+		<result column="update_by" property="updateBy" />
+		<result column="update_time" property="updateTime" />
+
+		<result column="depart_name" property="departName" />
+		<result column="depart_code" property="departCode" />
+		<result column="position_id" property="positionId" />
+		<result column="position_name" property="positionName" />
+
+		<result column="is_work" property="isWork" />
+	</resultMap>
+
+	<select id="selectSysUserPage" resultMap="BaseResultMap">
+		select su.id, su.user_code, su.user_name, sd.depart_code, sd.depart_name, sdp.position_code, sdp.position_name, su.user_mobile, su.locked, su.update_time
+		from sys_user su
+		left join sys_employee_position sep on sep.user_code = su.user_code
+		left join sys_department_position sdp on sdp.position_code = sep.position_code
+		left join sys_department sd on sd.depart_code = sdp.depart_code
+		<where>
+			<if test="p.userAccount !='' and p.userAccount !=null ">
+				and su.user_account like CONCAT('%',#{p.userAccount},'%')
+			</if>
+			<if test="p.userName !='' and p.userName !=null ">
+				and su.user_name like CONCAT('%',#{p.userName},'%')
+			</if>
+			<if test="p.locked !=null ">
+				and su.locked = #{p.locked}
+			</if>
+			<if test="p.systemCode !='' and p.systemCode !=null ">
+				and su.system_code = #{p.systemCode}
+			</if>
+			<if test="p.userMobile !='' and p.userMobile !=null ">
+				and su.user_mobile = #{p.userMobile}
+			</if>
+			<if test="p.userCodes !=null and p.userCodes.size() > 0">
+				and su.user_code in
+				<foreach collection="p.userCodes" item="item" open="("
+					close=")" separator=",">
+					#{item}
+				</foreach>
+			</if>
+		</where>
+		order by if(isnull(su.update_time),su.create_time,su.update_time) desc
+	</select>
+
+	<select id="getUserLstByPositionId"
+		resultType="com.cloud.user.model.SysUser">
+		SELECT e.* from sys_department_position a LEFT join
+		sys_department b on a.depart_code=b.depart_code
+		left join
+		sys_employee_position d on a.id=d.position_id
+		LEFT join sys_user e on
+		d.user_code=e.user_code where a.id=#{positionId}
+		and e.id is not null
+	</select>
+
+	<select id="getUserLstByDeparts"
+		resultType="com.cloud.user.model.SysUser">
+		SELECT e.* from sys_department_position a LEFT join sys_department b
+		on a.depart_code=b.depart_code
+		left join sys_employee_position d on
+		a.id=d.position_id
+		LEFT join sys_user e on d.user_code=e.user_code
+		<where>
+			e.id is not null
+			and b.depart_code in
+			<foreach collection="list" item="item" open="(" close=")"
+				separator=",">
+				#{item}
+			</foreach>
+		</where>
+	</select>
+	
+	<select id="selectUserPage"
+		resultType="com.cloud.user.model.SysUser">
+		SELECT
+		su.*
+		FROM sys_user su
+		<where>
+			<if test="userAccount !='' and userAccount !=null ">
+				and su.user_account like CONCAT('%',#{userAccount},'%')
+			</if>
+			<if test="userName !='' and userName !=null ">
+				and su.user_name like CONCAT('%',#{userName},'%')
+			</if>
+			<if test="locked !=null ">
+				and su.locked = #{locked}
+			</if>
+			<if test="systemCode !='' and systemCode !=null ">
+				and su.system_code = #{systemCode}
+			</if>
+			<if test="userMobile !='' and userMobile !=null ">
+				and su.user_mobile = #{userMobile}
+			</if>
+			<if test="userCodes !=null and userCodes.size() > 0">
+				and su.user_code in
+				<foreach collection="userCodes" item="item" open="("
+					close=")" separator=",">
+					#{item}
+				</foreach>
+			</if>
+		</where>
+		order by if(isnull(su.update_time),su.create_time,su.update_time) desc
+	</select>
+	
+<select id="findValidUser"
+		resultType="com.cloud.user.model.SysUser">
+		select user_account,user_name
+		from (
+		select
+		user_account, substring(user_name,1,char_length(user_name)-2) as
+		user_name from sys_employee e,sys_user u where e.user_code =
+		u.user_code and u.locked=0 and right(user_name,1) REGEXP '[0-9]'
+		union
+		select user_account, user_name from sys_employee e,sys_user u where
+		e.user_code = u.user_code and u.locked=0 and right(user_name,1) REGEXP
+		'^[^0-9]') a where a.user_account=#{userAccount} and
+		a.user_name=#{userName}
+</select>
+
+<select id="findValidUserByIdnoAndNameAndGh"
+		resultType="com.cloud.user.model.SysUser">
+		select user_account,user_name,idno
+		from (
+		select
+		user_account,e.idno, substring(user_name,1,char_length(user_name)-2) as
+		user_name from sys_employee e,sys_user u where e.user_code =
+		u.user_code and u.locked=0 and right(user_name,1) REGEXP '[0-9]'
+		union
+		select user_account,e.idno, user_name from sys_employee e,sys_user u where
+		e.user_code = u.user_code and u.locked=0 and right(user_name,1) REGEXP
+		'^[^0-9]') a 
+		where a.user_account=#{userAccount} and
+		a.user_name=#{userName} and a.idno = #{idno}
+</select>
+
+<select id="findValidUserAccount"
+		resultType="com.cloud.user.model.SysUser">
+	select su.* from sys_employee se,sys_user su where su.user_code=se.user_code   and su.user_account =#{userAccount} ;
+</select>
+
+<select id="findValidSPUserAccount"
+		resultType="com.cloud.user.model.SysUser">
+	SELECT * FROM sys_user a WHERE (a.user_code LIKE 'SP%' OR  (system_code ='10' and a.user_code LIKE 'L1%') ) and a.user_account =#{userAccount} ;
+</select>
+
+	<select id="findUserAuthorities" resultType="java.lang.String"
+		parameterType="java.lang.String" >
+		SELECT distinct sr.permission FROM sys_user u,sys_user_roles ur,sys_role_resources srr,sys_resource sr 
+		WHERE u.id=ur.user_id AND ur.role_id=srr.role_id AND srr.resource_id=sr.id
+		AND u.user_code=#{userCode} AND u.locked=0 and and LENGTH(sr.permission )>0
+	</select>
+	
+	<select id="findUserLstByAuth" resultType="java.lang.String"
+		parameterType="java.lang.String" >
+		SELECT distinct u.user_code FROM sys_user u,sys_user_roles ur,sys_role_resources srr,sys_resource sr 
+		WHERE u.id=ur.user_id AND ur.role_id=srr.role_id AND srr.resource_id=sr.id
+		AND sr.permission=#{permission} AND u.locked=0
+	</select>
+
+	<select id="findUserByDepartCode"
+			resultType="com.cloud.user.model.SysUser">
+		SELECT e.*, b.depart_code, b.depart_name, dp.position_name from sys_department_position a LEFT join sys_department b
+		on a.depart_code=b.depart_code
+		left join sys_employee_position d on
+		a.id=d.position_id
+		LEFT join sys_user e on d.user_code=e.user_code
+		LEFT join sys_department_position dp on dp.id=d.position_id
+		<where>
+			e.id is not null
+			and e.locked = 0
+			and b.depart_code in
+			<foreach collection="list" item="item" open="(" close=")"
+					 separator=",">
+				#{item}
+			</foreach>
+		</where>
+	</select>
+
+</mapper>

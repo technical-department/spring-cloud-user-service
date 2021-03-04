@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cloud.user.mapper.SysRoleMapper">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.cloud.user.model.SysRole">
+		<id column="id" property="id" />
+		<result column="system_code" property="systemCode" />
+		<result column="role_name" property="roleName" />
+		<result column="role_remark" property="roleRemark" />
+		<result column="status" property="status" />
+		<result column="create_by" property="createBy" />
+		<result column="create_time" property="createTime" />
+		<result column="update_by" property="updateBy" />
+		<result column="update_time" property="updateTime" />
+	</resultMap>
+
+	<select id="selectMyPage" resultType="com.cloud.user.model.SysRole">
+		select sr.*,sbi.system_name from sys_role sr
+		left join sys_base_info sbi on sr.system_code = sbi.system_code
+		<where>
+			<if test="systemCode!=null and systemCode!=''">
+				and sr.system_code = #{systemCode}
+			</if>
+			<if test="roleName!=null and roleName!=''">
+				and sr.role_name like CONCAT('%',#{roleName},'%')
+			</if>
+			<if test="status!=null">
+				and sr.status=#{status}
+			</if>
+			<if test="createBy!=null and createBy!=''">
+				and sr.create_by like CONCAT('%',#{createBy},'%')
+			</if>
+			<if test="createTimeBegin!=null">
+				and sr.create_time <![CDATA[ >= ]]>
+				STR_TO_DATE(createTimeBegin,'%Y-%m-%d')
+			</if>
+			<if test="createTimeEnd!=null">
+				and sr.create_time <![CDATA[ < ]]>
+				DATE_ADD(STR_TO_DATE(createTimeEnd,'%Y-%m-%d'), INTERVAL 1 day)
+			</if>
+			<if test="updateBy!=null and updateBy!=''">
+				and sr.update_by like CONCAT('%',#{updateBy},'%')
+			</if>
+			<if test="updateTimeBegin!=null">
+				and sr.update_time <![CDATA[ >= ]]>
+				STR_TO_DATE(updateTimeBegin,'%Y-%m-%d')
+			</if>
+			<if test="updateTimeEnd!=null">
+				and sr.update_time <![CDATA[ < ]]>
+				DATE_ADD(STR_TO_DATE(updateTimeEnd,'%Y-%m-%d'), INTERVAL 1 day)
+			</if>
+			
+		</where>
+		order by sr.update_time desc,sr.create_time desc
+	</select>
+	
+	<select id="findLstByUserCode" resultType="com.cloud.user.model.SysRole">
+		select sr.* from sys_role sr
+		left join sys_user_roles sur on sr.role_code = sur.role_code
+		<where>
+			<if test="userCode!=null and userCode!=''">
+				and sur.user_code = #{userCode}
+			</if>
+			and sr.status=1
+		</where>
+	</select>
+	
+	<select id="findLstByPositionId" resultType="com.cloud.user.model.SysRole">
+		select sr.* from sys_role sr
+		left join sys_position_role spr on sr.id = spr.role_id
+		<where>
+			<if test="positionId!=null and positionId!=''">
+				and spr.position_id = #{positionId}
+			</if>
+			and sr.status=1
+		</where>
+	</select>
+	
+	<select id="findLstByPositionIds" resultType="com.cloud.user.model.SysRole">
+		select distinct sr.id,sr.role_name,sr.system_code from sys_role sr
+		left join sys_position_role spr on sr.id = spr.role_id
+		<where>
+		 1=1 and sr.status=1
+			<if test="positionIds!=null ">
+				and spr.position_id in 
+				<foreach open="(" close=")" collection="positionIds" item="positionId" separator=",">
+					#{positionId}
+				</foreach>
+			</if>
+			
+		</where>
+	</select>
+	
+
+</mapper>

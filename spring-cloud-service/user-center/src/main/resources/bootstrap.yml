@@ -1,0 +1,61 @@
+nacos:
+  namespace: 142e4905-a36a-4d9f-b18b-ed46c9d9a363
+  server-addr: 127.0.0.1:8848
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${nacos.server-addr}
+        namespace: ${nacos.namespace}
+      config:
+        # 配置中心地址
+        server-addr: ${nacos.server-addr}
+        # 配置文件格式
+        file-extension: yml
+        namespace: ${nacos.namespace}
+        extension-configs:
+        - data-id: devops-share-dev.yaml
+          group: DEFAULT_GROUP
+          refresh: true
+
+#
+#          - data-id: shareconfig4.yml
+#            group: SHARE4_GROUP
+#            refresh: true
+#        share:
+#          dataids: devops-share-test.yml
+#        shared-configs: devops-share-test.yml
+#        shared-configs[0]:
+#          data-id: user-center-test.yml
+#          group: DEFAULT_GROUP   # 默认为DEFAULT_GROUP
+#          refresh: true   # 是否动态刷新，默认为false
+#
+#        shared-configs[0]:
+#          data-id: devops-share-test.yml
+#          group: DEFAULT_GROUP
+#          refresh: true
+#        extension-configs:
+#          - data-id: devops-share-test.yml
+
+#logging:
+#  level:
+#    org:
+#      springframework: debug
+
+
+
+#nacos:
+#  namespace: 142e4905-a36a-4d9f-b18b-ed46c9d9a363
+#  server-addr: 127.0.0.1:8848
+#spring:
+#  cloud:
+#    nacos:
+#      discovery:
+#        server-addr: ${nacos.server-addr}
+#        namespace: ${nacos.namespace}
+#      config:
+#        # 配置中心地址
+#        server-addr: ${nacos.server-addr}
+#        # 配置文件格式
+#        file-extension: yml
+#        namespace: ${nacos.namespace}
